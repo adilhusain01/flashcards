@@ -1,26 +1,123 @@
 @import "tailwindcss";
 
-:root {
-  --background: #020617;
-  --foreground: #f1f5f9;
-}
-
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-sans);
+  --font-serif: var(--font-serif);
 }
 
+/* ── Base ── */
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: #0a0908;
+  color: #e8e0d4;
+  font-family: var(--font-sans), system-ui, sans-serif;
+  overflow-x: hidden;
 }
 
-/* 3D Card Flip Utilities */
-.perspective-1000 {
-  perspective: 1000px;
+/* ── Animated Mesh Background ── */
+@keyframes meshShift {
+  0%, 100% {
+    border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+    transform: translate(0, 0) rotate(0deg);
+  }
+  25% {
+    border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%;
+    transform: translate(20px, -30px) rotate(5deg);
+  }
+  50% {
+    border-radius: 50% 60% 30% 60% / 40% 70% 50% 60%;
+    transform: translate(-10px, 20px) rotate(-3deg);
+  }
+  75% {
+    border-radius: 40% 60% 70% 30% / 60% 40% 60% 50%;
+    transform: translate(15px, 10px) rotate(2deg);
+  }
+}
+
+@keyframes meshShift2 {
+  0%, 100% {
+    border-radius: 40% 60% 70% 30% / 40% 70% 30% 60%;
+    transform: translate(0, 0) rotate(0deg);
+  }
+  33% {
+    border-radius: 70% 30% 50% 50% / 30% 60% 40% 70%;
+    transform: translate(-25px, 15px) rotate(-4deg);
+  }
+  66% {
+    border-radius: 50% 50% 30% 70% / 60% 40% 70% 30%;
+    transform: translate(20px, -20px) rotate(6deg);
+  }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes breathe {
+  0%, 100% { opacity: 0.4; transform: scale(1); }
+  50% { opacity: 0.7; transform: scale(1.02); }
+}
+
+@keyframes grainAnim {
+  0%, 100% { transform: translate(0, 0); }
+  10% { transform: translate(-5%, -10%); }
+  30% { transform: translate(3%, -15%); }
+  50% { transform: translate(12%, 9%); }
+  70% { transform: translate(9%, 4%); }
+  90% { transform: translate(-1%, 7%); }
+}
+
+/* ── Ambient Orbs ── */
+.ambient-orb {
+  position: absolute;
+  filter: blur(80px);
+  pointer-events: none;
+  will-change: transform, border-radius;
+}
+
+.ambient-orb-1 {
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(217, 164, 76, 0.12) 0%, transparent 70%);
+  top: -15%;
+  left: -10%;
+  animation: meshShift 20s ease-in-out infinite;
+}
+
+.ambient-orb-2 {
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(180, 83, 60, 0.08) 0%, transparent 70%);
+  bottom: -10%;
+  right: -5%;
+  animation: meshShift2 25s ease-in-out infinite;
+}
+
+.ambient-orb-3 {
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(120, 100, 180, 0.06) 0%, transparent 70%);
+  top: 40%;
+  right: 20%;
+  animation: meshShift 30s ease-in-out infinite reverse;
+}
+
+/* ── Grain Overlay ── */
+.grain-overlay::after {
+  content: "";
+  position: fixed;
+  inset: -50%;
+  width: 200%;
+  height: 200%;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 50;
+  animation: grainAnim 8s steps(10) infinite;
+}
+
+/* ── 3D Card ── */
+.perspective-1200 {
+  perspective: 1200px;
 }
 
 .preserve-3d {
@@ -31,9 +128,85 @@ body {
   backface-visibility: hidden;
 }
 
-/* Custom Scrollbar for card back */
+/* ── Card Surface ── */
+.card-front {
+  background:
+    radial-gradient(ellipse at 30% 20%, rgba(217, 164, 76, 0.04) 0%, transparent 50%),
+    linear-gradient(160deg, #171412 0%, #0f0e0c 100%);
+  border: 1px solid rgba(217, 164, 76, 0.08);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.02),
+    0 25px 60px -15px rgba(0, 0, 0, 0.6),
+    0 0 40px -10px rgba(217, 164, 76, 0.05);
+}
+
+.card-back {
+  background:
+    radial-gradient(ellipse at 70% 80%, rgba(120, 180, 140, 0.05) 0%, transparent 50%),
+    linear-gradient(340deg, #141816 0%, #0f0e0c 100%);
+  border: 1px solid rgba(120, 180, 140, 0.1);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.02),
+    0 25px 60px -15px rgba(0, 0, 0, 0.6),
+    0 0 40px -10px rgba(120, 180, 140, 0.05);
+}
+
+/* ── Upload Zone ── */
+.upload-zone {
+  background:
+    radial-gradient(ellipse at 50% 50%, rgba(217, 164, 76, 0.03) 0%, transparent 70%),
+    rgba(14, 13, 11, 0.6);
+  border: 1.5px dashed rgba(217, 164, 76, 0.15);
+  backdrop-filter: blur(20px);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.upload-zone:hover {
+  border-color: rgba(217, 164, 76, 0.35);
+  background:
+    radial-gradient(ellipse at 50% 50%, rgba(217, 164, 76, 0.06) 0%, transparent 70%),
+    rgba(18, 16, 14, 0.8);
+  box-shadow: 0 0 60px -20px rgba(217, 164, 76, 0.1);
+}
+
+.upload-zone.dragging {
+  border-color: rgba(217, 164, 76, 0.5);
+  background:
+    radial-gradient(ellipse at 50% 50%, rgba(217, 164, 76, 0.08) 0%, transparent 60%),
+    rgba(20, 18, 15, 0.9);
+  box-shadow: 0 0 80px -20px rgba(217, 164, 76, 0.15);
+  transform: scale(1.01);
+}
+
+/* ── Nav Buttons ── */
+.nav-btn {
+  background: rgba(14, 13, 11, 0.6);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.nav-btn:not(:disabled):hover {
+  background: rgba(217, 164, 76, 0.15);
+  border-color: rgba(217, 164, 76, 0.25);
+  box-shadow: 0 0 20px -5px rgba(217, 164, 76, 0.2);
+  transform: translateY(-50%) scale(1.08);
+}
+
+/* ── Progress Bar ── */
+.progress-track {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.progress-fill {
+  background: linear-gradient(90deg, rgba(217, 164, 76, 0.6), rgba(217, 164, 76, 0.9));
+  box-shadow: 0 0 12px rgba(217, 164, 76, 0.3);
+}
+
+/* ── Scrollbar ── */
 .custom-scrollbar::-webkit-scrollbar {
-  width: 4px;
+  width: 3px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-track {
@@ -41,10 +214,16 @@ body {
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: rgba(99, 102, 241, 0.3);
+  background: rgba(217, 164, 76, 0.2);
   border-radius: 4px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: rgba(99, 102, 241, 0.5);
+  background: rgba(217, 164, 76, 0.4);
+}
+
+/* ── Selection Color ── */
+::selection {
+  background: rgba(217, 164, 76, 0.25);
+  color: #faf0e0;
 }

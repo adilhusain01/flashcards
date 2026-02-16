@@ -7,10 +7,7 @@ import {
   ChevronLeft,
   ChevronRight,
   RotateCw,
-  FileText,
   X,
-  Sparkles,
-  HelpCircle,
 } from "lucide-react";
 import Papa from "papaparse";
 
@@ -21,9 +18,16 @@ type Flashcard = {
   back: string;
 };
 
-// --- Components ---
+// --- Ambient Background ---
+const AmbientBackground = () => (
+  <>
+    <div className="ambient-orb ambient-orb-1" />
+    <div className="ambient-orb ambient-orb-2" />
+    <div className="ambient-orb ambient-orb-3" />
+  </>
+);
 
-// 1. File Upload Component
+// --- File Upload ---
 const FileUpload = ({
   onDataLoaded,
 }: {
@@ -48,7 +52,6 @@ const FileUpload = ({
           }
         );
 
-        // Remove header row if it looks like "Question, Answer" or "Term, Definition"
         if (parsedData.length > 0) {
           const firstFront = parsedData[0].front.toLowerCase();
           if (
@@ -68,90 +71,118 @@ const FileUpload = ({
     e.preventDefault();
     setIsDragging(true);
   };
-
   const onDragLeave = () => setIsDragging(false);
-
   const onDrop = (e: React.DragEvent) => {
     e.preventDefault();
     setIsDragging(false);
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      handleFile(e.dataTransfer.files[0]);
-    }
+    if (e.dataTransfer.files?.[0]) handleFile(e.dataTransfer.files[0]);
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen p-6 bg-slate-950 text-white">
-      <div className="text-center space-y-4 mb-12">
-        <div className="inline-flex items-center justify-center p-3 bg-indigo-500/10 rounded-2xl mb-4 ring-1 ring-indigo-500/30">
-          <Sparkles className="w-6 h-6 text-indigo-400" />
-        </div>
-        <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-indigo-200 via-white to-indigo-200 bg-clip-text text-transparent">
-          Flashcard Reform
-        </h1>
-        <p className="text-slate-400 max-w-md mx-auto">
-          Upload your CSV study data and transform it into an interactive
-          mastery tool.
-        </p>
-      </div>
+    <div className="grain-overlay relative flex flex-col items-center justify-center min-h-screen p-6 overflow-hidden">
+      <AmbientBackground />
 
-      <div
-        className={`
-          relative group cursor-pointer w-full max-w-xl h-64 rounded-3xl border-2 border-dashed transition-all duration-300 ease-out
-          flex flex-col items-center justify-center gap-4
-          ${
-            isDragging
-              ? "border-indigo-400 bg-indigo-900/20 scale-[1.02]"
-              : "border-slate-700 bg-slate-900/50 hover:border-indigo-500/50 hover:bg-slate-800/80"
-          }
-        `}
-        onDragOver={onDragOver}
-        onDragLeave={onDragLeave}
-        onDrop={onDrop}
-        onClick={() => fileInputRef.current?.click()}
+      {/* Content */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+        className="relative z-10 flex flex-col items-center"
       >
-        <input
-          type="file"
-          accept=".csv"
-          ref={fileInputRef}
-          className="hidden"
-          onChange={(e) => e.target.files && handleFile(e.target.files[0])}
-        />
+        {/* Title */}
+        <div className="text-center mb-16">
+          <motion.h1
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2, duration: 0.7 }}
+            className="font-[family-name:var(--font-serif)] text-5xl md:text-7xl text-[#e8e0d4] mb-4 tracking-tight"
+          >
+            Flashcards
+          </motion.h1>
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.5, duration: 0.7 }}
+            className="text-[#7a7267] text-base max-w-sm mx-auto leading-relaxed"
+          >
+            Drop your CSV to begin studying
+          </motion.p>
+        </div>
 
-        <div className="p-4 rounded-full bg-slate-800 group-hover:bg-indigo-600 transition-colors duration-300">
-          <Upload className="w-8 h-8 text-indigo-300 group-hover:text-white" />
-        </div>
-        <div className="text-center">
-          <p className="text-lg font-medium text-slate-200">
-            Click to upload or drag & drop
-          </p>
-          <p className="text-sm text-slate-500 mt-1">
-            Accepts .CSV files (Question, Answer)
-          </p>
-        </div>
-      </div>
+        {/* Upload Zone */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.97 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.4, duration: 0.6 }}
+          className={`upload-zone ${isDragging ? "dragging" : ""} relative group cursor-pointer w-full max-w-lg h-56 rounded-2xl flex flex-col items-center justify-center gap-5`}
+          onDragOver={onDragOver}
+          onDragLeave={onDragLeave}
+          onDrop={onDrop}
+          onClick={() => fileInputRef.current?.click()}
+        >
+          <input
+            type="file"
+            accept=".csv"
+            ref={fileInputRef}
+            className="hidden"
+            onChange={(e) => e.target.files && handleFile(e.target.files[0])}
+          />
 
-      {/* Sample Data Preview */}
-      <div className="mt-12 w-full max-w-xl">
-        <div className="flex items-center gap-2 text-xs font-semibold text-slate-500 uppercase tracking-wider mb-4">
-          <FileText className="w-4 h-4" />
-          Expected CSV Format
-        </div>
-        <div className="bg-slate-900/80 rounded-xl p-4 border border-slate-800 font-mono text-sm text-slate-400 overflow-hidden">
-          <div className="flex border-b border-slate-800 pb-2 mb-2 text-indigo-400">
-            <span className="w-1/2">Term / Question</span>
-            <span className="w-1/2">Definition / Answer</span>
+          <motion.div
+            animate={{ y: [0, -4, 0] }}
+            transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+          >
+            <div className="p-3.5 rounded-xl bg-[rgba(217,164,76,0.06)] border border-[rgba(217,164,76,0.1)] group-hover:border-[rgba(217,164,76,0.25)] transition-colors duration-500">
+              <Upload className="w-6 h-6 text-[#d9a44c] opacity-60 group-hover:opacity-100 transition-opacity duration-500" />
+            </div>
+          </motion.div>
+
+          <div className="text-center">
+            <p className="text-[#c4b8a8] text-sm font-medium">
+              Click to upload or drag & drop
+            </p>
+            <p className="text-[#5a5248] text-xs mt-1.5 tracking-wide">
+              .CSV &mdash; two columns, question & answer
+            </p>
           </div>
-          <div className="flex opacity-50">
-            <span className="w-1/2">What is FDI?</span>
-            <span className="w-1/2">Foreign Direct Investment</span>
+        </motion.div>
+
+        {/* Format hint */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.8, duration: 0.6 }}
+          className="mt-10 w-full max-w-lg"
+        >
+          <div className="rounded-xl overflow-hidden border border-[rgba(255,255,255,0.03)] bg-[rgba(14,13,11,0.5)]">
+            <div className="px-4 py-2.5 border-b border-[rgba(255,255,255,0.03)] flex items-center gap-2">
+              <div className="flex gap-1.5">
+                <div className="w-2 h-2 rounded-full bg-[rgba(217,164,76,0.2)]" />
+                <div className="w-2 h-2 rounded-full bg-[rgba(255,255,255,0.05)]" />
+                <div className="w-2 h-2 rounded-full bg-[rgba(255,255,255,0.05)]" />
+              </div>
+              <span className="text-[10px] text-[#4a4440] uppercase tracking-[0.15em] ml-2">
+                expected format
+              </span>
+            </div>
+            <div className="px-4 py-3 font-mono text-xs space-y-1.5">
+              <div className="flex text-[#d9a44c]/40">
+                <span className="w-1/2">Question</span>
+                <span className="w-1/2">Answer</span>
+              </div>
+              <div className="flex text-[#6a6158]">
+                <span className="w-1/2">What is FDI?</span>
+                <span className="w-1/2">Foreign Direct Investment</span>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
     </div>
   );
 };
 
-// 2. Main Flashcard Component
+// --- Flashcard Game ---
 const FlashcardGame = ({
   deck,
   onReset,
@@ -181,7 +212,6 @@ const FlashcardGame = ({
     }
   }, [currentIndex]);
 
-  // Keyboard navigation
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "ArrowRight") handleNext();
@@ -196,106 +226,99 @@ const FlashcardGame = ({
   }, [handleNext, handlePrev]);
 
   return (
-    <div className="relative flex flex-col items-center justify-center min-h-screen bg-slate-950 overflow-hidden text-slate-100">
-      {/* Background Ambience */}
-      <div className="absolute top-[-20%] left-[-10%] w-[500px] h-[500px] bg-indigo-600/20 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-[-20%] right-[-10%] w-[600px] h-[600px] bg-blue-600/10 rounded-full blur-[120px] pointer-events-none" />
+    <div className="grain-overlay relative flex flex-col items-center justify-center min-h-screen overflow-hidden">
+      <AmbientBackground />
 
       {/* Header */}
-      <div className="absolute top-0 left-0 right-0 p-6 flex justify-between items-center z-10">
-        <div className="flex flex-col">
-          <h2 className="text-xl font-semibold text-white">
-            Flashcards
-          </h2>
-        </div>
+      <motion.div
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="absolute top-0 left-0 right-0 p-6 flex justify-between items-center z-10"
+      >
+        <h2 className="font-[family-name:var(--font-serif)] text-xl text-[#c4b8a8]">
+          Flashcards
+        </h2>
         <button
           onClick={onReset}
-          className="p-2 hover:bg-white/10 rounded-full transition-colors"
+          className="p-2.5 rounded-xl hover:bg-[rgba(255,255,255,0.04)] transition-all duration-300 group"
           title="Upload new file"
         >
-          <X className="w-5 h-5 text-slate-400" />
+          <X className="w-4 h-4 text-[#5a5248] group-hover:text-[#c4b8a8] transition-colors" />
         </button>
-      </div>
+      </motion.div>
 
-      {/* Main Card Area */}
-      <div className="relative w-full max-w-md aspect-[3/4] md:aspect-[4/5] max-h-[600px] px-6">
-        {/* Navigation Arrows */}
+      {/* Card Area */}
+      <div className="relative w-full max-w-md aspect-[3/4] md:aspect-[4/5] max-h-[550px] px-6 z-10">
+        {/* Nav: Previous */}
         <button
           onClick={handlePrev}
           disabled={currentIndex === 0}
-          className={`absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 md:-translate-x-12 z-20 p-4 rounded-full bg-slate-900/50 backdrop-blur-md border border-slate-700 transition-all ${
-            currentIndex === 0
-              ? "opacity-0 pointer-events-none"
-              : "hover:bg-indigo-600 hover:border-indigo-500 hover:scale-110"
+          className={`nav-btn absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1 md:-translate-x-14 z-20 p-3.5 rounded-xl ${
+            currentIndex === 0 ? "opacity-0 pointer-events-none" : ""
           }`}
         >
-          <ChevronLeft className="w-6 h-6" />
+          <ChevronLeft className="w-5 h-5 text-[#7a7267]" />
         </button>
 
+        {/* Nav: Next */}
         <button
           onClick={handleNext}
           disabled={currentIndex === deck.length - 1}
-          className={`absolute right-0 top-1/2 -translate-y-1/2 translate-x-2 md:translate-x-12 z-20 p-4 rounded-full bg-slate-900/50 backdrop-blur-md border border-slate-700 transition-all ${
+          className={`nav-btn absolute right-0 top-1/2 -translate-y-1/2 translate-x-1 md:translate-x-14 z-20 p-3.5 rounded-xl ${
             currentIndex === deck.length - 1
               ? "opacity-0 pointer-events-none"
-              : "hover:bg-indigo-600 hover:border-indigo-500 hover:scale-110"
+              : ""
           }`}
         >
-          <ChevronRight className="w-6 h-6" />
+          <ChevronRight className="w-5 h-5 text-[#7a7267]" />
         </button>
 
-        {/* The Card */}
-        <div className="w-full h-full perspective-1000 relative">
+        {/* Card */}
+        <div className="w-full h-full perspective-1200 relative">
           <AnimatePresence mode="wait" initial={false} custom={direction}>
             <motion.div
               key={currentIndex}
               custom={direction}
-              initial={{ opacity: 0, x: direction * 50, scale: 0.95 }}
-              animate={{ opacity: 1, x: 0, scale: 1 }}
-              exit={{ opacity: 0, x: direction * -50, scale: 0.95 }}
-              transition={{ duration: 0.3, ease: "easeOut" }}
+              initial={{ opacity: 0, x: direction * 40, scale: 0.96, rotateY: direction * 5 }}
+              animate={{ opacity: 1, x: 0, scale: 1, rotateY: 0 }}
+              exit={{ opacity: 0, x: direction * -40, scale: 0.96, rotateY: direction * -5 }}
+              transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
               className="w-full h-full"
             >
               <div
-                className="relative w-full h-full cursor-pointer transition-transform duration-500 preserve-3d"
+                className="relative w-full h-full cursor-pointer preserve-3d"
                 style={{
+                  transition: "transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)",
                   transform: isFlipped ? "rotateY(180deg)" : "rotateY(0deg)",
                 }}
                 onClick={() => setIsFlipped(!isFlipped)}
               >
                 {/* FRONT */}
-                <div
-                  className="absolute inset-0 backface-hidden rounded-3xl p-8 md:p-12 flex flex-col justify-center items-center text-center shadow-2xl bg-slate-900 border border-slate-800/60"
-                >
-                  {/* Gradient Glow Effect on Card */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-purple-500/5 rounded-3xl" />
-
-                  <div className="relative z-10 flex-grow flex items-center justify-center">
-                    <h3 className="text-2xl md:text-3xl font-medium leading-relaxed text-slate-100">
+                <div className="card-front absolute inset-0 backface-hidden rounded-2xl p-8 md:p-12 flex flex-col justify-center items-center text-center">
+                  <div className="flex-grow flex items-center justify-center">
+                    <h3 className="font-[family-name:var(--font-serif)] text-2xl md:text-3xl leading-snug text-[#e8e0d4]">
                       {currentCard.front}
                     </h3>
                   </div>
 
-                  <div className="relative z-10 mt-auto pt-8">
-                    <span className="text-sm font-medium text-slate-500 flex items-center gap-2">
-                      <HelpCircle className="w-4 h-4" /> Tap to see answer
+                  <div className="mt-auto pt-6">
+                    <span className="text-xs text-[#4a4440] tracking-widest uppercase">
+                      tap to reveal
                     </span>
                   </div>
                 </div>
 
                 {/* BACK */}
                 <div
-                  className="absolute inset-0 backface-hidden rounded-3xl p-8 md:p-12 flex flex-col justify-center items-center text-center shadow-2xl bg-slate-800 border border-slate-700"
+                  className="card-back absolute inset-0 backface-hidden rounded-2xl p-8 md:p-12 flex flex-col justify-center items-center text-center"
                   style={{ transform: "rotateY(180deg)" }}
                 >
-                  <div className="absolute inset-0 bg-gradient-to-tl from-emerald-500/10 to-transparent rounded-3xl" />
-
-                  <div className="relative z-10 flex-grow flex items-center justify-center overflow-y-auto custom-scrollbar">
-                    <p className="text-xl md:text-2xl font-medium leading-relaxed text-emerald-100">
+                  <div className="flex-grow flex items-center justify-center overflow-y-auto custom-scrollbar">
+                    <p className="font-[family-name:var(--font-serif)] text-xl md:text-2xl leading-relaxed text-[#b8d4c0]">
                       {currentCard.back}
                     </p>
                   </div>
-
                 </div>
               </div>
             </motion.div>
@@ -303,39 +326,46 @@ const FlashcardGame = ({
         </div>
       </div>
 
-      {/* Progress Footer */}
-      <div className="absolute bottom-0 left-0 right-0 p-8 flex flex-col items-center gap-4 z-10 bg-gradient-to-t from-slate-950 to-transparent">
-        <div className="w-full max-w-md flex items-center gap-4 text-xs font-medium text-slate-500">
-          <RotateCw
-            className="w-4 h-4 cursor-pointer hover:text-white transition-colors"
+      {/* Footer */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3, duration: 0.5 }}
+        className="absolute bottom-0 left-0 right-0 p-8 flex flex-col items-center gap-4 z-10"
+      >
+        <div className="w-full max-w-sm flex items-center gap-4">
+          <button
             onClick={() => {
               setCurrentIndex(0);
               setIsFlipped(false);
             }}
-          />
+            className="p-2 rounded-lg hover:bg-[rgba(255,255,255,0.04)] transition-colors group"
+          >
+            <RotateCw className="w-3.5 h-3.5 text-[#4a4440] group-hover:text-[#d9a44c] transition-colors" />
+          </button>
 
-          {/* Progress Bar */}
-          <div className="flex-grow h-1.5 bg-slate-800 rounded-full overflow-hidden">
+          {/* Progress */}
+          <div className="progress-track flex-grow h-1 rounded-full overflow-hidden">
             <motion.div
-              className="h-full bg-indigo-500"
+              className="progress-fill h-full rounded-full"
               initial={{ width: 0 }}
               animate={{
                 width: `${((currentIndex + 1) / deck.length) * 100}%`,
               }}
-              transition={{ duration: 0.3 }}
+              transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
             />
           </div>
 
-          <span>
-            {currentIndex + 1} / {deck.length} cards
+          <span className="text-[11px] text-[#4a4440] tabular-nums tracking-wide font-medium">
+            {currentIndex + 1} / {deck.length}
           </span>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 };
 
-// 3. Root Page
+// --- Root ---
 export default function Home() {
   const [data, setData] = useState<Flashcard[] | null>(null);
 
