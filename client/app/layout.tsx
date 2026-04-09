@@ -14,9 +14,39 @@ const dmSans = DM_Sans({
   weight: ["400", "500", "600", "700"],
 });
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
+
 export const metadata: Metadata = {
+  metadataBase: siteUrl ? new URL(siteUrl) : undefined,
   title: "Flashcards",
   description: "Upload your CSV study data and transform it into an interactive mastery tool.",
+  openGraph: {
+    title: "Flashcards",
+    description:
+      "Upload your CSV study data and transform it into an interactive mastery tool.",
+    type: "website",
+    url: "/",
+    images: [
+      {
+        url: "/og.webp",
+        width: 1200,
+        height: 630,
+        alt: "Flashcards app preview",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Flashcards",
+    description:
+      "Upload your CSV study data and transform it into an interactive mastery tool.",
+    images: ["/og.webp"],
+  },
+  icons: {
+    icon: [{ url: "/favicon.svg", type: "image/svg+xml" }],
+    shortcut: [{ url: "/favicon.svg", type: "image/svg+xml" }],
+    apple: [{ url: "/favicon.svg", type: "image/svg+xml" }],
+  },
 };
 
 export default function RootLayout({
